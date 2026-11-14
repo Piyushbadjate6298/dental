@@ -8,26 +8,45 @@ const JWT_SECRET = process.env.JWT_SECRET || 'shital-dental-jwt-secret-replace-i
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || '7d';
 
 /**
- * Ensures an admin user exists. If table is empty, creates initial admin.
+ * Ensures an admin user exists. If account does not exist, creates it with bcrypt hash.
+ * If ADMIN_PASSWORD environment variable is configured in Render, safely synchronizes the bcrypt hash.
+ * Never creates duplicate admin accounts on server restarts.
  */
 export async function seedInitialAdminIfNeeded() {
   try {
-    const res = await query('SELECT COUNT(*) as count FROM admin_users');
-    const count = Number(res.rows[0]?.count || 0);
+    const adminUser = (process.env.ADMIN_USERNAME || 'admin').trim();
+    const adminPass = process.env.ADMIN_PASSWORD;
 
-    if (count === 0) {
-      const initialUser = (process.env.ADMIN_USERNAME || 'admin').trim();
-      const initialPass = process.env.ADMIN_PASSWORD || 'Admin@ShitalDental2026!';
-      const hash = await bcrypt.hash(initialPass, 10);
+    const res = await query(
+      'SELECT id, username, password_hash FROM admin_users WHERE LOWER(username) = LOWER($1)',
+      [adminUser]
+    );
+
+    if (res.rows.length === 0) {
+      // 1. Initial admin account does not exist -> create it
+      const passToHash = adminPass || 'Admin@ShitalDental2026!';
+      const hash = await bcrypt.hash(passToHash, 10);
       const id = crypto.randomUUID();
 
       await query(
         `INSERT INTO admin_users (id, username, password_hash, role, created_at, updated_at)
          VALUES ($1, $2, $3, 'admin', CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)`,
-        [id, initialUser, hash]
+        [id, adminUser, hash]
       );
 
-      logger.info(`Initial admin account created: [${initialUser}]`);
+      logger.info(`✅ Initial admin account created successfully: [${adminUser}]`);
+    } else if (adminPass && adminPass.trim()) {
+      // 2. Admin already exists -> if ADMIN_PASSWORD is set in env, ensure password matches securely
+      const existing = res.rows[0];
+      const matches = await bcrypt.compare(adminPass, existing.password_hash);
+      if (!matches) {
+        const newHash = await bcrypt.hash(adminPass, 10);
+        await query(
+          'UPDATE admin_users SET password_hash = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
+          [newHash, existing.id]
+        );
+        logger.info(`🔒 Admin password synchronized securely from ADMIN_PASSWORD environment variable for [${adminUser}].`);
+      }
     }
   } catch (err) {
     logger.warn('Initial admin check/seed encountered an issue:', err.message);

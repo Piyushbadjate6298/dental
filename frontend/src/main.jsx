@@ -135,6 +135,7 @@ function App() {
   const handleLoginSuccess = (user) => {
     setLogged(true);
     setCurrentUser(user);
+    setPage('dashboard');
     notify(`Welcome back, ${user.username}`);
   };
 
