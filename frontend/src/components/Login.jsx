@@ -1,0 +1,157 @@
+import React, { useState } from 'react';
+import {
+  ArrowRight,
+  Check,
+  Eye,
+  EyeOff,
+  ShieldCheck,
+  Stethoscope,
+  UserRound,
+} from 'lucide-react';
+import { api } from '../services/api';
+
+export default function Login({ onLogin }) {
+  const [u, setU] = useState('admin');
+  const [p, setP] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [err, setErr] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!u.trim() || !p) {
+      setErr('Please enter both username and password.');
+      return;
+    }
+
+    setLoading(true);
+    setErr('');
+
+    try {
+      const res = await api.login(u.trim(), p);
+      onLogin(res.user);
+    } catch (error) {
+      setErr(error.message || 'Incorrect username or password.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="login-page">
+      <div className="login-art">
+        <div className="art-orb orb-one" />
+        <div className="art-orb orb-two" />
+        <div className="art-content">
+          <div className="brand-mark big">
+            <Stethoscope size={30} />
+          </div>
+          <div className="eyebrow light">DENTAL LAB MANAGEMENT</div>
+          <h1>
+            Better work.
+            <br />
+            <i>Beautiful smiles.</i>
+          </h1>
+          <p>Every customer inquiry and prescription, organized in one secure place.</p>
+          <div className="art-pills">
+            <span>
+              <Check size={14} /> Digital prescriptions
+            </span>
+            <span>
+              <Check size={14} /> WhatsApp transmission
+            </span>
+            <span>
+              <Check size={14} /> Neon PostgreSQL database
+            </span>
+          </div>
+        </div>
+        <div className="art-footer">SHITAL DENTAL SERVICES · LASALGAON</div>
+      </div>
+
+      <div className="login-panel">
+        <div className="login-card">
+          <div className="login-mobile-brand">
+            <div className="brand-mark">
+              <Stethoscope size={22} />
+            </div>
+            <div>
+              <b>SHITAL</b>
+              <span>DENTAL SERVICES</span>
+            </div>
+          </div>
+
+          <div className="eyebrow">AUTHENTICATION</div>
+          <h2>
+            Sign in to your
+            <br />
+            workspace
+          </h2>
+          <p className="muted">Enter your admin credentials to access laboratory inquiries.</p>
+
+          <form onSubmit={handleSubmit}>
+            <label htmlFor="login-username">Username</label>
+            <div className="input-wrap">
+              <UserRound size={17} />
+              <input
+                id="login-username"
+                value={u}
+                onChange={(e) => {
+                  setU(e.target.value);
+                  if (err) setErr('');
+                }}
+                placeholder="admin"
+                autoComplete="username"
+                disabled={loading}
+              />
+            </div>
+
+            <label htmlFor="login-password">Password</label>
+            <div className="input-wrap">
+              <ShieldCheck size={17} />
+              <input
+                id="login-password"
+                type={showPassword ? 'text' : 'password'}
+                value={p}
+                onChange={(e) => {
+                  setP(e.target.value);
+                  if (err) setErr('');
+                }}
+                placeholder="Enter password"
+                autoComplete="current-password"
+                disabled={loading}
+              />
+              <button
+                type="button"
+                className="pass-toggle"
+                onClick={() => setShowPassword((v) => !v)}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+
+            {err && <div className="error">{err}</div>}
+
+            <button className="primary-btn full" type="submit" disabled={loading}>
+              {loading ? (
+                <>
+                  <span className="spinner" /> Signing in…
+                </>
+              ) : (
+                <>
+                  Sign in <ArrowRight size={17} />
+                </>
+              )}
+            </button>
+          </form>
+
+          <div className="demo-login">
+            <b>Admin Authentication</b>
+            <span>Configured via backend environment (ADMIN_USERNAME / ADMIN_PASSWORD)</span>
+          </div>
+          <p className="login-foot">Private &amp; secure dental laboratory management desk.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
