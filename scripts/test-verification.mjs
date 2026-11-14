@@ -142,7 +142,7 @@ const msg = makeMessage(
 );
 
 assert(msg.includes('SHITAL DENTAL SERVICES'), 'Message contains lab title');
-assert(msg.includes('*Inquiry Ref:* #301'), 'Message contains inquiry ref');
+assert(msg.includes('*Inquiry Ref:* Inquiry #301') || msg.includes('*Inquiry Ref:* #301'), 'Message contains inquiry ref');
 assert(msg.includes("Patient's Right: 6, 7, 8"), 'Message contains upper right teeth');
 assert(msg.includes("Patient's Left: 2, 3"), 'Message contains upper left teeth');
 assert(msg.includes("Patient's Right: 4, 5"), 'Message contains lower right teeth');

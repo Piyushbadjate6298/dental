@@ -94,18 +94,24 @@ export async function getInquiryById(id) {
  */
 export async function createInquiry(data, performedBy = 'admin') {
   return await withTransaction(async (client) => {
-    // Generate next sequential inquiry number
-    const maxRes = await client.query('SELECT COALESCE(MAX(inquiry_number), 300) as max_no FROM inquiries');
-    const nextNumber = Number(maxRes.rows[0]?.max_no || 300) + 1;
+    // Generate next consecutive sequential inquiry number from database sequence
+    let inquiryNumber;
+    try {
+      const seqRes = await client.query("SELECT nextval('inquiry_number_seq') as next_no");
+      inquiryNumber = Number(seqRes.rows[0]?.next_no);
+    } catch (seqErr) {
+      const maxRes = await client.query('SELECT COALESCE(MAX(inquiry_number), 0) as max_no FROM inquiries');
+      inquiryNumber = Number(maxRes.rows[0]?.max_no || 0) + 1;
+    }
 
     const id = data.id || crypto.randomUUID();
-    const inquiryNumber = data.number ? Number(data.number) : nextNumber;
     const inquiryDate = data.date || new Date().toISOString().slice(0, 10);
     const patient = (data.patient || '').trim();
     const doctorName = (data.doctor || '').trim();
     const shade = (data.shade || '').trim();
     const note = (data.note || '').trim();
     const status = data.status || 'Draft';
+    const customFields = data.customFields && typeof data.customFields === 'object' ? data.customFields : {};
 
     // Separate upper & lower teeth
     const allTeeth = Array.isArray(data.teeth) ? data.teeth : [];
@@ -132,11 +138,11 @@ export async function createInquiry(data, performedBy = 'admin') {
       `INSERT INTO inquiries (
         id, inquiry_number, inquiry_date, doctor_id, doctor_name_snapshot,
         patient_name, tooth_shade, upper_jaw_teeth, lower_jaw_teeth,
-        lab_instructions, trial_requirements, note, status, created_at, updated_at
+        lab_instructions, trial_requirements, note, status, custom_fields, created_at, updated_at
       ) VALUES (
         $1, $2, $3, $4, $5,
         $6, $7, $8, $9,
-        $10, $11, $12, $13, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+        $10, $11, $12, $13, $14, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
       ) RETURNING *`,
       [
         id,
@@ -152,6 +158,7 @@ export async function createInquiry(data, performedBy = 'admin') {
         JSON.stringify(stages),
         note,
         status,
+        JSON.stringify(customFields),
       ]
     );
 
@@ -186,6 +193,7 @@ export async function updateInquiry(id, data, performedBy = 'admin') {
 
   const instructions = Array.isArray(data.instructions) ? data.instructions : existing.instructions;
   const stages = Array.isArray(data.stages) ? data.stages : existing.stages;
+  const customFields = data.customFields !== undefined && typeof data.customFields === 'object' ? data.customFields : (existing.customFields || {});
 
   let doctorId = data.doctorId || existing.doctorId;
   if (doctorName && doctorName !== existing.doctor) {
@@ -208,8 +216,9 @@ export async function updateInquiry(id, data, performedBy = 'admin') {
       trial_requirements = $9,
       note = $10,
       status = $11,
+      custom_fields = $12,
       updated_at = CURRENT_TIMESTAMP
-    WHERE id = $12
+    WHERE id = $13
     RETURNING *`,
     [
       inquiryDate,
@@ -223,6 +232,7 @@ export async function updateInquiry(id, data, performedBy = 'admin') {
       JSON.stringify(stages),
       note,
       status,
+      JSON.stringify(customFields),
       id,
     ]
   );

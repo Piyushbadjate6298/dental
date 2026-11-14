@@ -12,4 +12,8 @@ router.get('/', settingsController.getSettings);
 // Settings modifications require authentication
 router.put('/', authMiddleware, validate(schemas.settings), settingsController.updateSettings);
 
+// Inquiry Form Settings
+router.get('/inquiry-form', settingsController.getInquiryFormSettings);
+router.put('/inquiry-form', authMiddleware, settingsController.updateInquiryFormSettings);
+
 export default router;

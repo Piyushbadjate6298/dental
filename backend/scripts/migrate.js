@@ -30,11 +30,15 @@ async function runMigrations() {
     await client.connect();
     console.log('✅ Connected to PostgreSQL.');
 
-    const sqlPath = path.join(__dirname, '../migrations/001_initial_schema.sql');
-    const sql = fs.readFileSync(sqlPath, 'utf8');
+    const migrationsDir = path.join(__dirname, '../migrations');
+    const files = fs.readdirSync(migrationsDir).filter((f) => f.endsWith('.sql')).sort();
 
-    console.log('📄 Executing 001_initial_schema.sql...');
-    await client.query(sql);
+    for (const file of files) {
+      console.log(`📄 Executing migration: ${file}...`);
+      const sql = fs.readFileSync(path.join(migrationsDir, file), 'utf8');
+      await client.query(sql);
+      console.log(`✅ ${file} executed successfully.`);
+    }
 
     console.log('🎉 Database migrations completed successfully!');
     console.log('Tables created / verified:');

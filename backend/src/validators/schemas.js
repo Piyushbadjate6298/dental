@@ -50,8 +50,10 @@ export const schemas = {
 
   settings: (body) => {
     const errors = [];
-    if (!body.whatsapp || typeof body.whatsapp !== 'string' || !body.whatsapp.replace(/\D/g, '')) {
-      errors.push('Valid WhatsApp destination number is required');
+    if (body.whatsapp !== undefined) {
+      if (!body.whatsapp || typeof body.whatsapp !== 'string' || !body.whatsapp.replace(/\D/g, '')) {
+        errors.push('Valid WhatsApp destination number is required');
+      }
     }
     return errors;
   },

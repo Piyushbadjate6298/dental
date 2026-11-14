@@ -19,3 +19,22 @@ export async function updateSettings(req, res, next) {
     return sendError(res, err.message, 400);
   }
 }
+
+export async function getInquiryFormSettings(req, res, next) {
+  try {
+    const formSettings = await settingsService.getInquiryFormSettings();
+    return sendSuccess(res, formSettings);
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function updateInquiryFormSettings(req, res, next) {
+  try {
+    const performedBy = req.user?.username || 'admin';
+    const updated = await settingsService.updateInquiryFormSettings(req.body, performedBy);
+    return sendSuccess(res, updated, 'Inquiry form settings updated successfully');
+  } catch (err) {
+    return sendError(res, err.message, 400);
+  }
+}

@@ -10,6 +10,7 @@ import {
   RefreshCw,
   Settings,
   ShieldCheck,
+  Sliders,
   UploadCloud,
 } from 'lucide-react';
 import {
@@ -20,8 +21,10 @@ import {
 } from '../utils/dental.js';
 import { PageHeading } from './Common.jsx';
 import { api } from '../services/api.js';
+import InquiryFormSettings from './InquiryFormSettings.jsx';
 
 export default function SettingsPage({ data, setData, notify, onRefresh }) {
+  const [settingsTab, setSettingsTab] = useState('form'); // Default to Inquiry Form Settings or general
   const [phone, setPhone] = useState(data.whatsapp);
   const [lab, setLab] = useState(data.labName);
   const [address, setAddress] = useState(data.labAddress);
@@ -191,10 +194,44 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
       <PageHeading
         eyebrow="CONFIGURATION"
         title="Settings"
-        sub="Customize lab information, WhatsApp destination, database sync and security."
+        sub="Customize inquiry form options, lab information, WhatsApp destination and security."
       />
 
-      <div className="settings-grid">
+      <div className="settings-nav-tabs">
+        <button
+          type="button"
+          className={`settings-nav-tab ${settingsTab === 'form' ? 'active' : ''}`}
+          onClick={() => setSettingsTab('form')}
+        >
+          <Sliders size={16} />
+          <span>Inquiry Form Settings</span>
+        </button>
+
+        <button
+          type="button"
+          className={`settings-nav-tab ${settingsTab === 'general' ? 'active' : ''}`}
+          onClick={() => setSettingsTab('general')}
+        >
+          <Settings size={16} />
+          <span>Lab &amp; WhatsApp Settings</span>
+        </button>
+      </div>
+
+      {settingsTab === 'form' && (
+        <InquiryFormSettings
+          settings={data.inquiryFormSettings}
+          onSaveSuccess={(savedSettings) => {
+            setData((d) => ({
+              ...d,
+              inquiryFormSettings: savedSettings,
+            }));
+          }}
+          notify={notify}
+        />
+      )}
+
+      {settingsTab === 'general' && (
+        <div className="settings-grid">
         {/* Lab & WhatsApp Settings */}
         <section className="panel settings-panel">
           <div className="form-section-title">
@@ -419,6 +456,7 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
           </div>
         </section>
       </div>
+      )}
     </>
   );
 }

@@ -30,15 +30,21 @@ export default function HistoryPage({
   const [previewItem, setPreviewItem] = useState(null);
 
   const rows = data.inquiries.filter((x) => {
-    const q = search.toLowerCase();
+    const q = search.toLowerCase().trim();
+    const numQ = q.replace(/^inquiry\s*#?/i, '').replace(/^#/, '').trim();
     const match = [
       x.patient,
       x.doctor,
       String(x.number),
+      `inquiry #${x.number}`,
+      `#${x.number}`,
       x.shade,
       ...(x.instructions || []),
       ...(x.stages || []),
-    ].some((v) => (v || '').toLowerCase().includes(q));
+    ].some((v) => {
+      const s = (v || '').toLowerCase();
+      return s.includes(q) || (numQ && s.includes(numQ));
+    });
     return match && (filter === 'All' || x.status === filter);
   });
 
@@ -139,7 +145,7 @@ export default function HistoryPage({
                     return (
                       <tr key={x.id}>
                         <td>
-                          <b className="record-no">#{x.number}</b>
+                          <b className="record-no">Inquiry #{x.number}</b>
                           {x.shade && <small>Shade: {x.shade}</small>}
                         </td>
                         <td>{formatDate(x.date)}</td>
@@ -231,7 +237,7 @@ export default function HistoryPage({
                   <article className="history-card" key={x.id}>
                     <div className="history-card-top">
                       <div className="history-card-id">
-                        <b className="record-no">#{x.number}</b>
+                        <b className="record-no">Inquiry #{x.number}</b>
                         <span>{formatDate(x.date)}</span>
                       </div>
                       <StatusBadge status={x.status} />

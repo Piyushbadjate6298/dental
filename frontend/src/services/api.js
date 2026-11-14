@@ -212,6 +212,17 @@ class ApiClient {
     });
   }
 
+  async getInquiryFormSettings() {
+    return await this.request('/settings/inquiry-form');
+  }
+
+  async updateInquiryFormSettings(payload) {
+    return await this.request('/settings/inquiry-form', {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    });
+  }
+
   // --- Dashboard APIs ---
   async getDashboardStats() {
     return await this.request('/dashboard/stats');

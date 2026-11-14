@@ -87,13 +87,16 @@ function App() {
           updated.labName = settingsRes.value.labName || prev.labName;
           updated.labAddress = settingsRes.value.labAddress || prev.labAddress;
           updated.labPhone = settingsRes.value.labPhone || prev.labPhone;
+          if (settingsRes.value.inquiryFormSettings) {
+            updated.inquiryFormSettings = settingsRes.value.inquiryFormSettings;
+          }
         }
 
         if (inquiriesRes.status === 'fulfilled') {
           const inqList = inquiriesRes.value?.inquiries || inquiriesRes.value;
           if (Array.isArray(inqList)) {
             updated.inquiries = inqList;
-            const maxNo = inqList.reduce((m, x) => Math.max(m, x.number || 0), 300);
+            const maxNo = inqList.reduce((m, x) => Math.max(m, x.number || 0), 0);
             updated.nextNo = maxNo + 1;
           }
         }

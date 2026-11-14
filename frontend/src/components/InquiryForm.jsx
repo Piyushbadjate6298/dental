@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -13,10 +13,11 @@ import {
 } from 'lucide-react';
 import {
   cleanPhone,
+  DEFAULT_INQUIRY_FORM_SETTINGS,
   getJawTeeth,
-  instructions,
+  instructions as defaultInstructions,
   shareInquiryOnWhatsApp,
-  stages,
+  stages as defaultStages,
   today,
 } from '../utils/dental.js';
 import { PageHeading, SummaryRow } from './Common.jsx';
@@ -32,8 +33,55 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
   const [chosen, setChosen] = useState(initial?.instructions || []);
   const [stage, setStage] = useState(initial?.stages || []);
   const [note, setNote] = useState(initial?.note || '');
+  const [customFields, setCustomFields] = useState(initial?.customFields || {});
+  const [otherInstruction, setOtherInstruction] = useState('');
+  const [otherStage, setOtherStage] = useState('');
   const [busy, setBusy] = useState(false);
   const [previewOpen, setPreviewOpen] = useState(false);
+
+  const formSettings = data?.inquiryFormSettings || DEFAULT_INQUIRY_FORM_SETTINGS;
+
+  // Active instructions from settings + preserve historical instructions if editing
+  const availableInstructions = useMemo(() => {
+    const list = (formSettings.labInstructions || [])
+      .filter((x) => x.enabled !== false)
+      .map((x) => x.name);
+    if (initial?.instructions) {
+      initial.instructions.forEach((item) => {
+        const clean = item.startsWith('Others:') ? 'Others' : item;
+        if (!list.includes(clean)) list.push(clean);
+      });
+    }
+    if (!list.includes('Others')) list.push('Others');
+    return list;
+  }, [formSettings.labInstructions, initial?.instructions]);
+
+  // Active trial options from settings + preserve historical trial options if editing
+  const availableStages = useMemo(() => {
+    const list = (formSettings.trialOptions || [])
+      .filter((x) => x.enabled !== false)
+      .map((x) => x.name);
+    if (initial?.stages) {
+      initial.stages.forEach((item) => {
+        const clean = item.startsWith('Others:') ? 'Others' : item;
+        if (!list.includes(clean)) list.push(clean);
+      });
+    }
+    if (!list.includes('Others')) list.push('Others');
+    return list;
+  }, [formSettings.trialOptions, initial?.stages]);
+
+  // Active tooth shades from settings
+  const availableShades = useMemo(() => {
+    return (formSettings.toothShades || [])
+      .filter((x) => x.enabled !== false)
+      .map((x) => x.name);
+  }, [formSettings.toothShades]);
+
+  // Active custom fields
+  const activeCustomFields = useMemo(() => {
+    return (formSettings.customFields || []).filter((f) => f.enabled !== false);
+  }, [formSettings.customFields]);
 
   useEffect(() => {
     if (initial) {
@@ -42,9 +90,31 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
       setPatient(initial.patient || '');
       setShade(initial.shade || '');
       setSelected(initial.teeth || []);
-      setChosen(initial.instructions || []);
-      setStage(initial.stages || []);
+
+      // Check if custom other instruction exists in historical record
+      const rawInst = initial.instructions || [];
+      const customInstItem = rawInst.find((x) => typeof x === 'string' && x.startsWith('Others:'));
+      if (customInstItem) {
+        setOtherInstruction(customInstItem.replace(/^Others:\s*/, ''));
+        setChosen([...rawInst.filter((x) => !x.startsWith('Others:')), 'Others']);
+      } else {
+        setOtherInstruction('');
+        setChosen(rawInst);
+      }
+
+      // Check if custom other stage exists in historical record
+      const rawStages = initial.stages || [];
+      const customStageItem = rawStages.find((x) => typeof x === 'string' && x.startsWith('Others:'));
+      if (customStageItem) {
+        setOtherStage(customStageItem.replace(/^Others:\s*/, ''));
+        setStage([...rawStages.filter((x) => !x.startsWith('Others:')), 'Others']);
+      } else {
+        setOtherStage('');
+        setStage(rawStages);
+      }
+
       setNote(initial.note || '');
+      setCustomFields(initial.customFields || {});
     } else {
       setDate(today());
       setDoctor('');
@@ -54,11 +124,30 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
       setChosen([]);
       setStage([]);
       setNote('');
+      setCustomFields({});
+      setOtherInstruction('');
+      setOtherStage('');
     }
   }, [initial?.id]);
 
   const toggle = (set, v) =>
     set((a) => (a.includes(v) ? a.filter((x) => x !== v) : [...a, v]));
+
+  const getFinalInstructions = () => {
+    const list = chosen.filter((x) => x !== 'Others');
+    if (chosen.includes('Others') && otherInstruction.trim()) {
+      list.push(`Others: ${otherInstruction.trim()}`);
+    }
+    return list;
+  };
+
+  const getFinalStages = () => {
+    const list = stage.filter((x) => x !== 'Others');
+    if (stage.includes('Others') && otherStage.trim()) {
+      list.push(`Others: ${otherStage.trim()}`);
+    }
+    return list;
+  };
 
   const payload = (statusOverride) => ({
     id: initial?.id || crypto.randomUUID(),
@@ -68,8 +157,9 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
     patient,
     shade,
     teeth: selected,
-    instructions: chosen,
-    stages: stage,
+    instructions: getFinalInstructions(),
+    stages: getFinalStages(),
+    customFields,
     note,
     status: statusOverride || initial?.status || 'Draft',
     createdAt: initial?.createdAt || new Date().toISOString(),
@@ -84,6 +174,23 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
       notify('Please select or enter a doctor name');
       return false;
     }
+
+    // Validate required custom fields
+    for (const f of activeCustomFields) {
+      if (f.required) {
+        const val = customFields[f.name];
+        const empty =
+          val === undefined ||
+          val === null ||
+          (typeof val === 'string' && !val.trim()) ||
+          (Array.isArray(val) && val.length === 0);
+        if (empty) {
+          notify(`Please provide a value for required field: ${f.name}`);
+          return false;
+        }
+      }
+    }
+
     return true;
   };
 
@@ -133,8 +240,8 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
   return (
     <>
       <PageHeading
-        eyebrow="INQUIRY WORKFLOW"
-        title={initial ? 'Edit inquiry' : 'Create new inquiry'}
+        eyebrow={initial ? `INQUIRY #${initial.number}` : `AUTOMATIC SERIAL INQUIRY #${data.nextNo}`}
+        title={initial ? `Edit Inquiry #${initial.number}` : `New Inquiry #${data.nextNo}`}
         sub="Enter prescription details and submit the inquiry to the dental laboratory."
         action={
           <button type="button" className="outline-btn" onClick={onBack}>
@@ -221,11 +328,35 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
               {/* 4. Tooth shade */}
               <div className="field">
                 <label htmlFor="field-shade">Tooth shade</label>
+                {availableShades.length > 0 && (
+                  <div className="shade-chips-bar" style={{ display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '8px' }}>
+                    {availableShades.map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        className={`shade-chip-btn ${shade === s ? 'selected' : ''}`}
+                        onClick={() => setShade(s)}
+                        style={{
+                          padding: '4px 9px',
+                          fontSize: '11px',
+                          borderRadius: '6px',
+                          border: shade === s ? '2px solid #0d9488' : '1px solid #cbd5e1',
+                          background: shade === s ? '#f0fdfa' : '#ffffff',
+                          color: shade === s ? '#0f766e' : '#334155',
+                          cursor: 'pointer',
+                          fontWeight: shade === s ? 600 : 400,
+                        }}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                )}
                 <input
                   id="field-shade"
                   value={shade}
                   onChange={(e) => setShade(e.target.value)}
-                  placeholder="e.g. A1, A2, A3, B1"
+                  placeholder="Select shade above or type custom shade (e.g. A2, OM3)"
                 />
               </div>
             </div>
@@ -257,7 +388,7 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
             <div className="field">
               <label>Lab instructions (Materials / Work types)</label>
               <div className="choice-grid">
-                {instructions.map((x) => {
+                {availableInstructions.map((x) => {
                   const isChecked = chosen.includes(x);
                   return (
                     <label
@@ -277,13 +408,28 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
                   );
                 })}
               </div>
+
+              {/* Others text input for Lab Instructions */}
+              {chosen.includes('Others') && (
+                <div className="others-input-wrap" style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <label htmlFor="other-instruction-input" style={{ fontSize: '12px', fontWeight: 600, color: '#0d9488', display: 'block', marginBottom: '4px' }}>
+                    Specify other custom lab instruction:
+                  </label>
+                  <input
+                    id="other-instruction-input"
+                    value={otherInstruction}
+                    onChange={(e) => setOtherInstruction(e.target.value)}
+                    placeholder="Type custom material, metal grade, or specific instruction..."
+                  />
+                </div>
+              )}
             </div>
 
             {/* 8. Trial requirements */}
             <div className="field stages-field">
               <label>Trial requirements</label>
               <div className="stage-options">
-                {stages.map((x) => {
+                {availableStages.map((x) => {
                   const isChecked = stage.includes(x);
                   return (
                     <label
@@ -300,6 +446,21 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
                   );
                 })}
               </div>
+
+              {/* Others text input for Trial Options */}
+              {stage.includes('Others') && (
+                <div className="others-input-wrap" style={{ marginTop: '10px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0' }}>
+                  <label htmlFor="other-stage-input" style={{ fontSize: '12px', fontWeight: 600, color: '#0d9488', display: 'block', marginBottom: '4px' }}>
+                    Specify other custom trial requirement:
+                  </label>
+                  <input
+                    id="other-stage-input"
+                    value={otherStage}
+                    onChange={(e) => setOtherStage(e.target.value)}
+                    placeholder="Type custom trial stage (e.g. Coping Trial, Framework Check)..."
+                  />
+                </div>
+              )}
             </div>
 
             {/* Additional instructions */}
@@ -316,6 +477,121 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
               />
             </div>
           </section>
+
+          {/* Section 04: Custom Fields (if defined in settings) */}
+          {activeCustomFields.length > 0 && (
+            <section className="panel form-panel">
+              <div className="form-section-title">
+                <span className="section-number">04</span>
+                <div>
+                  <h3>Additional Custom Details</h3>
+                  <p>Custom inquiry fields defined in Settings</p>
+                </div>
+              </div>
+
+              <div className="field-grid">
+                {activeCustomFields.map((field) => {
+                  const val = customFields[field.name];
+                  return (
+                    <div
+                      key={field.id}
+                      className="field"
+                      style={{ gridColumn: field.type === 'textarea' ? '1 / -1' : 'auto' }}
+                    >
+                      <label>
+                        {field.name} {field.required && <em>*</em>}
+                      </label>
+
+                      {field.type === 'text' && (
+                        <input
+                          value={val || ''}
+                          onChange={(e) =>
+                            setCustomFields({ ...customFields, [field.name]: e.target.value })
+                          }
+                          placeholder={`Enter ${field.name}`}
+                        />
+                      )}
+
+                      {field.type === 'textarea' && (
+                        <textarea
+                          rows="2"
+                          value={val || ''}
+                          onChange={(e) =>
+                            setCustomFields({ ...customFields, [field.name]: e.target.value })
+                          }
+                          placeholder={`Enter ${field.name}`}
+                        />
+                      )}
+
+                      {field.type === 'select' && (
+                        <select
+                          value={val || ''}
+                          onChange={(e) =>
+                            setCustomFields({ ...customFields, [field.name]: e.target.value })
+                          }
+                        >
+                          <option value="">Select {field.name}</option>
+                          {(field.options || []).map((opt) => (
+                            <option key={opt} value={opt}>
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+
+                      {field.type === 'multiselect' && (
+                        <div className="choice-grid" style={{ marginTop: '6px' }}>
+                          {(field.options || []).map((opt) => {
+                            const isSel = Array.isArray(val) && val.includes(opt);
+                            return (
+                              <label key={opt} className={`choice ${isSel ? 'checked' : ''}`}>
+                                <input
+                                  type="checkbox"
+                                  checked={isSel}
+                                  onChange={() => {
+                                    const cur = Array.isArray(val) ? [...val] : [];
+                                    const next = cur.includes(opt)
+                                      ? cur.filter((x) => x !== opt)
+                                      : [...cur, opt];
+                                    setCustomFields({ ...customFields, [field.name]: next });
+                                  }}
+                                />
+                                <span className="fake-check">
+                                  {isSel && <Check size={13} strokeWidth={3} />}
+                                </span>
+                                <span className="choice-label">{opt}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {field.type === 'radio' && (
+                        <div className="choice-grid" style={{ marginTop: '6px' }}>
+                          {(field.options || []).map((opt) => {
+                            const isSel = val === opt;
+                            return (
+                              <label key={opt} className={`choice ${isSel ? 'checked' : ''}`}>
+                                <input
+                                  type="radio"
+                                  name={`field_${field.id}`}
+                                  checked={isSel}
+                                  onChange={() =>
+                                    setCustomFields({ ...customFields, [field.name]: opt })
+                                  }
+                                />
+                                <span className="choice-label">{opt}</span>
+                              </label>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </section>
+          )}
 
           {/* Bottom Form Actions */}
           <div className="form-actions">
@@ -359,11 +635,15 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
               <div className="preview-icon">
                 <FileText size={18} />
               </div>
-              <span>INQUIRY REVIEW</span>
+              <span>INQUIRY REVIEW · INQUIRY #{initial?.number || data.nextNo}</span>
             </div>
             <h3>{patient || 'Patient name'}</h3>
             <p>{doctor || 'Doctor not selected'}</p>
             <div className="summary-divider" />
+            <SummaryRow
+              label="Inquiry ref"
+              value={`Inquiry #${initial?.number || data.nextNo}`}
+            />
             <SummaryRow
               label="Date"
               value={
@@ -395,12 +675,22 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
             />
             <SummaryRow
               label="Lab instructions"
-              value={chosen.length ? chosen.join(', ') : 'Not selected'}
+              value={getFinalInstructions().length ? getFinalInstructions().join(', ') : 'Not selected'}
             />
             <SummaryRow
               label="Trial requirements"
-              value={stage.length ? stage.join(', ') : 'Not selected'}
+              value={getFinalStages().length ? getFinalStages().join(', ') : 'Not selected'}
             />
+            {Object.entries(customFields).map(([k, v]) => {
+              if (v === undefined || v === null || v === '' || (Array.isArray(v) && v.length === 0)) return null;
+              return (
+                <SummaryRow
+                  key={k}
+                  label={k}
+                  value={Array.isArray(v) ? v.join(', ') : String(v)}
+                />
+              );
+            })}
             {note && (
               <SummaryRow
                 label="Notes"

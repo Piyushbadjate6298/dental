@@ -14,14 +14,48 @@ import {
 
 export const STORE = 'shital-dental-v1';
 
+export const DEFAULT_INQUIRY_FORM_SETTINGS = {
+  labInstructions: [
+    { id: 'inst-1', name: 'White Metal', enabled: true },
+    { id: 'inst-2', name: 'Ceramic', enabled: true },
+    { id: 'inst-3', name: 'Zircon', enabled: true },
+    { id: 'inst-4', name: 'Valplast', enabled: true },
+    { id: 'inst-5', name: 'R.P.D.C.', enabled: true },
+    { id: 'inst-6', name: 'Half Ceramic', enabled: true },
+    { id: 'inst-7', name: 'Japanese Gold', enabled: true },
+  ],
+  trialOptions: [
+    { id: 'trial-1', name: 'Metal Trial', enabled: true },
+    { id: 'trial-2', name: 'Bisque Trial', enabled: true },
+    { id: 'trial-3', name: 'Final', enabled: true },
+  ],
+  toothShades: [
+    { id: 'shade-1', name: 'A1', enabled: true },
+    { id: 'shade-2', name: 'A2', enabled: true },
+    { id: 'shade-3', name: 'A3', enabled: true },
+    { id: 'shade-4', name: 'A3.5', enabled: true },
+    { id: 'shade-5', name: 'B1', enabled: true },
+    { id: 'shade-6', name: 'B2', enabled: true },
+    { id: 'shade-7', name: 'C1', enabled: true },
+    { id: 'shade-8', name: 'C2', enabled: true },
+    { id: 'shade-9', name: 'D2', enabled: true },
+    { id: 'shade-10', name: 'Bleach', enabled: true },
+  ],
+  allowOtherLabInstruction: true,
+  allowOtherTrialOption: true,
+  allowOtherShade: true,
+  customFields: [],
+};
+
 export const defaultData = {
   doctors: [],
   whatsapp: '919423105611',
   labName: 'Shital Dental Services',
   labAddress: 'Lasalgaon 422306, Tal. Niphad, Nashik',
   labPhone: '9370045066',
-  nextNo: 301,
+  nextNo: 1,
   inquiries: [],
+  inquiryFormSettings: DEFAULT_INQUIRY_FORM_SETTINGS,
 };
 
 export const instructions = [
@@ -114,7 +148,7 @@ export function makeMessage(x, d) {
     `*${labTitle}*`,
     `*CUSTOMER INQUIRY & DENTAL PRESCRIPTION*`,
     `──────────────────────────`,
-    `*Inquiry Ref:* #${x.number}`,
+    `*Inquiry Ref:* Inquiry #${x.number}`,
     `*Date:* ${x.date}`,
     ``,
     `*Doctor's Name:* ${x.doctor || '—'}`,
@@ -133,6 +167,16 @@ export function makeMessage(x, d) {
     `*Lab Instructions:* ${(x.instructions || []).join(', ') || '—'}`,
     `*Trial Requirements:* ${(x.stages || []).join(', ') || '—'}`,
   ];
+
+  if (x.customFields && typeof x.customFields === 'object' && Object.keys(x.customFields).length > 0) {
+    lines.push(``);
+    lines.push(`*Custom Details:*`);
+    Object.entries(x.customFields).forEach(([k, v]) => {
+      if (v !== undefined && v !== null && String(v).trim()) {
+        lines.push(`  • *${k}:* ${Array.isArray(v) ? v.join(', ') : v}`);
+      }
+    });
+  }
 
   if (x.note && x.note.trim()) {
     lines.push(``);

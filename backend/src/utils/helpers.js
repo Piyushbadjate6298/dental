@@ -81,6 +81,7 @@ export function formatInquiryForClient(row) {
     instructions,
     stages,
     note: row.note || '',
+    customFields: row.custom_fields || {},
     status: row.status || 'Draft',
     createdAt: row.created_at,
     updatedAt: row.updated_at,

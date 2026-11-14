@@ -174,7 +174,7 @@ export default function Dashboard({ data, setPage, setEditing }) {
                   <div className="recent-info">
                     <b>{x.patient}</b>
                     <span>
-                      {x.doctor || 'No doctor selected'} · #{x.number}
+                      {x.doctor || 'No doctor selected'} · Inquiry #{x.number}
                     </span>
                   </div>
                   <div className="recent-date">
