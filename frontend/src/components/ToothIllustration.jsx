@@ -63,7 +63,12 @@ export default function ToothIllustration({
     >
       <div
         className="tooth-svg-wrap"
-        style={{ width: size, height: Math.round(size * 1.15) }}
+        style={{
+          width: '100%',
+          maxWidth: size ? `${size}px` : '42px',
+          height: 'auto',
+          aspectRatio: '50 / 58',
+        }}
       >
         <svg
           viewBox="0 0 50 60"

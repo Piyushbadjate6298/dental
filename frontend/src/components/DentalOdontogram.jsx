@@ -98,6 +98,10 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
   };
 
   const renderJawRow = (jaw, jawTitle, jawSubtitle, jawCount) => {
+    const isUpper = jaw === 'U';
+    const rightLabel = isUpper ? "← PATIENT'S RIGHT (UR)" : "← PATIENT'S RIGHT (LR)";
+    const leftLabel = isUpper ? "PATIENT'S LEFT (UL) →" : "PATIENT'S LEFT (LL) →";
+
     return (
       <div className="odontogram-jaw-section" data-jaw={jaw}>
         <div className="odontogram-jaw-bar">
@@ -123,7 +127,7 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
           </div>
         </div>
 
-        {/* Orientation Labels */}
+        {/* Desktop Orientation Labels */}
         <div className="odontogram-side-indicators">
           <span className="indicator-side right-side">
             ← PATIENT&apos;S RIGHT
@@ -134,11 +138,6 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
           </span>
         </div>
 
-        {/* Mobile Swipe Hint */}
-        <div className="odontogram-mobile-hint" aria-hidden="true">
-          <span>↔ Swipe horizontally to view full 16-tooth arch</span>
-        </div>
-
         {/* Teeth Arch / Quadrants Container */}
         <div
           className={`odontogram-teeth-container ${
@@ -147,12 +146,16 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
         >
           {/* Patient's Right: Teeth 8, 7, 6, 5, 4, 3, 2, 1 */}
           <div className="teeth-quadrant-group quadrant-right">
+            <div className="quadrant-mobile-header" aria-hidden="true">
+              <span className="quadrant-side-tag">{rightLabel}</span>
+              <span className="quadrant-notation-tag">Teeth 8 to 1</span>
+            </div>
             <div className="quadrant-teeth-flex">
               {RIGHT_INDICES.map((i) => renderTooth(jaw, i, viewMode === 'arch'))}
             </div>
           </div>
 
-          {/* Center Midline Visual Pillar */}
+          {/* Center Midline Visual Pillar / Divider */}
           <div className="odontogram-midline-pillar" aria-hidden="true">
             <span className="pillar-line" />
             <span className="pillar-tag">MIDLINE</span>
@@ -161,6 +164,10 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
 
           {/* Patient's Left: Teeth 1, 2, 3, 4, 5, 6, 7, 8 */}
           <div className="teeth-quadrant-group quadrant-left">
+            <div className="quadrant-mobile-header" aria-hidden="true">
+              <span className="quadrant-side-tag">{leftLabel}</span>
+              <span className="quadrant-notation-tag">Teeth 1 to 8</span>
+            </div>
             <div className="quadrant-teeth-flex">
               {LEFT_INDICES.map((i) => renderTooth(jaw, i, viewMode === 'arch'))}
             </div>
