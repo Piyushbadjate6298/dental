@@ -2,13 +2,17 @@ import React, { useState } from 'react';
 import {
   ArrowRight,
   Check,
+  CheckCircle2,
   Eye,
   EyeOff,
+  Globe,
+  RefreshCw,
+  Server,
   ShieldCheck,
   Stethoscope,
   UserRound,
 } from 'lucide-react';
-import { api } from '../services/api.js';
+import { api, getApiBaseUrl, setCustomApiBaseUrl } from '../services/api.js';
 
 export default function Login({ onLogin }) {
   const [u, setU] = useState('admin');
@@ -16,6 +20,12 @@ export default function Login({ onLogin }) {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [err, setErr] = useState('');
+
+  // Backend Server URL Configuration
+  const [serverUrl, setServerUrl] = useState(getApiBaseUrl());
+  const [showServerConfig, setShowServerConfig] = useState(false);
+  const [testStatus, setTestStatus] = useState(null);
+  const [testing, setTesting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -31,9 +41,36 @@ export default function Login({ onLogin }) {
       const res = await api.login(u.trim(), p);
       onLogin(res.user);
     } catch (error) {
-      setErr(error.message || 'Incorrect username or password.');
+      const msg = error.message || 'Incorrect username or password.';
+      setErr(msg);
+      if (msg.includes('405') || msg.includes('Could not connect')) {
+        setShowServerConfig(true);
+      }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTestAndSaveServer = async () => {
+    setTesting(true);
+    setTestStatus(null);
+    try {
+      const res = await api.testConnection(serverUrl);
+      setCustomApiBaseUrl(serverUrl);
+      setTestStatus({
+        ok: true,
+        message: `Connected successfully! (Database: ${res?.database?.mode || 'online'})`,
+      });
+      if (err && (err.includes('405') || err.includes('Could not connect'))) {
+        setErr('');
+      }
+    } catch (testErr) {
+      setTestStatus({
+        ok: false,
+        message: testErr.message || 'Could not connect to this URL. Verify it is running.',
+      });
+    } finally {
+      setTesting(false);
     }
   };
 
@@ -144,6 +181,84 @@ export default function Login({ onLogin }) {
               )}
             </button>
           </form>
+
+          {/* Backend API Server Configuration Section */}
+          <div className="server-config-section" style={{ marginTop: '16px', borderTop: '1px solid #e2e8f0', paddingTop: '12px' }}>
+            <button
+              type="button"
+              onClick={() => setShowServerConfig((s) => !s)}
+              style={{
+                background: 'none',
+                border: 'none',
+                padding: '4px 0',
+                color: '#0d9488',
+                fontSize: '12px',
+                fontWeight: 600,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '6px',
+                width: '100%',
+                textAlign: 'left',
+              }}
+            >
+              <Server size={14} />
+              <span>{showServerConfig ? 'Hide Backend Server Settings' : 'Configure Backend API URL'}</span>
+              <span style={{ opacity: 0.6, fontWeight: 400, marginLeft: 'auto', fontSize: '11px', maxWidth: '140px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {serverUrl}
+              </span>
+            </button>
+
+            {showServerConfig && (
+              <div style={{ marginTop: '8px', padding: '10px', background: '#f8fafc', borderRadius: '8px', border: '1px solid #e2e8f0', fontSize: '12px' }}>
+                <p style={{ margin: '0 0 6px 0', color: '#64748b', fontSize: '11px', lineHeight: 1.4 }}>
+                  Enter your deployed Render backend URL (e.g. <code>https://shital-dental-backend.onrender.com</code>):
+                </p>
+                <div style={{ display: 'flex', gap: '6px' }}>
+                  <input
+                    value={serverUrl}
+                    onChange={(e) => {
+                      setServerUrl(e.target.value);
+                      setTestStatus(null);
+                    }}
+                    placeholder="https://your-backend.onrender.com"
+                    style={{
+                      flex: 1,
+                      padding: '6px 8px',
+                      fontSize: '12px',
+                      borderRadius: '6px',
+                      border: '1px solid #cbd5e1',
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleTestAndSaveServer}
+                    disabled={testing}
+                    style={{
+                      padding: '6px 12px',
+                      fontSize: '11px',
+                      fontWeight: 600,
+                      background: '#0d9488',
+                      color: '#ffffff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {testing ? 'Testing…' : 'Save & Test'}
+                  </button>
+                </div>
+
+                {testStatus && (
+                  <div style={{ marginTop: '6px', fontSize: '11px', color: testStatus.ok ? '#059669' : '#dc2626', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                    {testStatus.ok ? <CheckCircle2 size={13} /> : null}
+                    {testStatus.message}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="demo-login">
             <b>Admin Authentication</b>

@@ -1,25 +1,60 @@
 // API Client for Shital Dental Services
-const rawApiUrl = (import.meta.env.VITE_API_URL || '').replace(/\/+$/, '');
-const API_BASE = rawApiUrl
-  ? (rawApiUrl.endsWith('/api') ? rawApiUrl : `${rawApiUrl}/api`)
-  : '/api';
+
+export function getApiBaseUrl() {
+  const custom = typeof window !== 'undefined' ? localStorage.getItem('shital_custom_api_url') : null;
+  const raw = (custom || import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+  if (!raw) return '/api';
+  return raw.endsWith('/api') ? raw : `${raw}/api`;
+}
+
+export function setCustomApiBaseUrl(url) {
+  if (typeof window !== 'undefined') {
+    if (url && url.trim()) {
+      const clean = url.trim().replace(/\/+$/, '');
+      const formatted = clean.endsWith('/api') ? clean : `${clean}/api`;
+      localStorage.setItem('shital_custom_api_url', formatted);
+      return formatted;
+    } else {
+      localStorage.removeItem('shital_custom_api_url');
+      return getApiBaseUrl();
+    }
+  }
+  return '/api';
+}
 
 class ApiClient {
   constructor() {
-    this.token = localStorage.getItem('shital_auth_token') || null;
+    this.token = typeof window !== 'undefined' ? localStorage.getItem('shital_auth_token') || null : null;
+  }
+
+  getBaseUrl() {
+    return getApiBaseUrl();
   }
 
   setToken(token) {
     this.token = token;
-    if (token) {
-      localStorage.setItem('shital_auth_token', token);
-    } else {
-      localStorage.removeItem('shital_auth_token');
+    if (typeof window !== 'undefined') {
+      if (token) {
+        localStorage.setItem('shital_auth_token', token);
+      } else {
+        localStorage.removeItem('shital_auth_token');
+      }
     }
   }
 
+  async testConnection(targetUrl) {
+    const raw = (targetUrl || getApiBaseUrl()).trim().replace(/\/+$/, '');
+    const base = raw.endsWith('/api') ? raw : `${raw}/api`;
+    const res = await fetch(`${base}/health`, { method: 'GET' });
+    if (!res.ok) {
+      throw new Error(`Server responded with HTTP ${res.status}`);
+    }
+    return await res.json();
+  }
+
   async request(endpoint, options = {}) {
-    const url = `${API_BASE}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const base = getApiBaseUrl();
+    const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -48,6 +83,11 @@ class ApiClient {
       }
 
       if (!response.ok) {
+        if (response.status === 405) {
+          throw new Error(
+            `HTTP 405 (Method Not Allowed): The request was sent to "${url}". Vercel static hosting received this POST request instead of your Render backend. Please configure your Render backend URL below.`
+          );
+        }
         const errorMessage = data?.error || data?.message || `HTTP error ${response.status}`;
         const error = new Error(errorMessage);
         error.status = response.status;
@@ -58,7 +98,7 @@ class ApiClient {
       return data?.data !== undefined ? data.data : data;
     } catch (err) {
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        throw new Error('Could not connect to the backend server. Please verify your connection or check if the server is running.');
+        throw new Error(`Could not connect to backend at "${url}". Please check your internet connection or verify your Render backend URL.`);
       }
       throw err;
     }
