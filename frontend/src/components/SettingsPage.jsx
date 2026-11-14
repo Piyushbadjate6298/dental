@@ -295,7 +295,7 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
               inputMode="tel"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
-              placeholder="e.g. 919423105611"
+              placeholder="e.g. 919370045066"
             />
             <small>
               Enter digits only, including country code (e.g. 91 for India). Do not add + or spaces.

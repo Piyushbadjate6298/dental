@@ -137,7 +137,7 @@ const msg = makeMessage(
   {
     labName: 'Shital Dental Services',
     labPhone: '9370045066',
-    whatsapp: '919423105611',
+    whatsapp: '919370045066',
   }
 );
 

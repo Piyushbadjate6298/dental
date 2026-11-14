@@ -49,7 +49,7 @@ export const DEFAULT_INQUIRY_FORM_SETTINGS = {
 
 export const defaultData = {
   doctors: [],
-  whatsapp: '919423105611',
+  whatsapp: '919370045066',
   labName: 'Shital Dental Services',
   labAddress: 'Lasalgaon 422306, Tal. Niphad, Nashik',
   labPhone: '9370045066',

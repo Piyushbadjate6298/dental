@@ -221,7 +221,7 @@ async function runTests() {
           },
         ],
         settings: {
-          whatsapp: '919423105611',
+          whatsapp: '919370045066',
           labName: 'Shital Dental Services',
         },
       }),
