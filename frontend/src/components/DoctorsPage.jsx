@@ -9,8 +9,8 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import { EmptyState, PageHeading } from './Common';
-import { api } from '../services/api';
+import { EmptyState, PageHeading } from './Common.jsx';
+import { api } from '../services/api.js';
 
 export default function DoctorsPage({ data, setData, notify }) {
   const [name, setName] = useState('');

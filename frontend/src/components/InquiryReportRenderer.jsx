@@ -11,7 +11,7 @@ import {
   downloadBlob,
   makeInquiryReportBlob,
   shareInquiryOnWhatsApp,
-} from '../utils/dental';
+} from '../utils/dental.js';
 
 /**
  * High-resolution prescription report renderer and preview dialog.

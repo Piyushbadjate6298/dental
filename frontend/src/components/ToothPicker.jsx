@@ -1,6 +1,6 @@
 import React from 'react';
-import DentalOdontogram from './DentalOdontogram';
-import SelectedTeethSummary from './SelectedTeethSummary';
+import DentalOdontogram from './DentalOdontogram.jsx';
+import SelectedTeethSummary from './SelectedTeethSummary.jsx';
 
 /**
  * Main Tooth Picker component combining:

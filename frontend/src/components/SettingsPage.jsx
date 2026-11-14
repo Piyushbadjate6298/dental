@@ -17,9 +17,9 @@ import {
   defaultData,
   downloadBlob,
   readData,
-} from '../utils/dental';
-import { PageHeading } from './Common';
-import { api } from '../services/api';
+} from '../utils/dental.js';
+import { PageHeading } from './Common.jsx';
+import { api } from '../services/api.js';
 
 export default function SettingsPage({ data, setData, notify, onRefresh }) {
   const [phone, setPhone] = useState(data.whatsapp);

@@ -2,8 +2,8 @@
  * Automated Verification Script for Anatomical Odontogram & Prescription Report
  */
 
-import { teeth, RIGHT_INDICES, LEFT_INDICES, TOOTH_NAMES, TOOTH_PATHS, getToothInfo, getSelectedTeethSummary } from './frontend/src/utils/toothData.js';
-import { getJawTeeth, makeMessage, cleanPhone } from './frontend/src/utils/dental.js';
+import { teeth, RIGHT_INDICES, LEFT_INDICES, TOOTH_NAMES, TOOTH_PATHS, getToothInfo, getSelectedTeethSummary } from '../frontend/src/utils/toothData.js';
+import { getJawTeeth, makeMessage, cleanPhone } from '../frontend/src/utils/dental.js';
 
 let passed = 0;
 let failed = 0;

@@ -12,9 +12,9 @@ import {
   cleanPhone,
   getJawTeeth,
   shareInquiryOnWhatsApp,
-} from '../utils/dental';
-import { EmptyState, PageHeading, StatusBadge } from './Common';
-import InquiryReportRenderer from './InquiryReportRenderer';
+} from '../utils/dental.js';
+import { EmptyState, PageHeading, StatusBadge } from './Common.jsx';
+import InquiryReportRenderer from './InquiryReportRenderer.jsx';
 
 export default function HistoryPage({
   data,

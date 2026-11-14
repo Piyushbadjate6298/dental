@@ -201,6 +201,7 @@ async function runTests() {
 
     // Test 10: Migration API
     console.log('\n10. Data Migration - Import Local Storage');
+    const legacyNumber = Math.floor(Date.now() / 1000) % 900000 + 100000;
     const migrateRes = await fetch(`${baseUrl}/migrate/import-local`, {
       method: 'POST',
       headers: authHeaders,
@@ -208,7 +209,7 @@ async function runTests() {
         doctors: ['Dr. Meena Patil'],
         inquiries: [
           {
-            number: 305,
+            number: legacyNumber,
             date: '2026-11-12',
             doctor: 'Dr. Meena Patil',
             patient: 'Rahul Sharma',

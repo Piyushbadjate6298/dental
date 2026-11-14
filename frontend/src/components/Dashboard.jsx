@@ -15,15 +15,15 @@ import {
   UserCheck,
   Users,
 } from 'lucide-react';
-import { today } from '../utils/dental';
-import { api } from '../services/api';
+import { today } from '../utils/dental.js';
+import { api } from '../services/api.js';
 import {
   EmptyState,
   PageHeading,
   QuickAction,
   Stat,
   StatusBadge,
-} from './Common';
+} from './Common.jsx';
 
 export default function Dashboard({ data, setPage, setEditing }) {
   const [dbStats, setDbStats] = useState(null);

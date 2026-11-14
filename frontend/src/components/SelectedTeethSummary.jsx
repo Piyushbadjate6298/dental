@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle2, Sparkles, X } from 'lucide-react';
-import { getSelectedTeethSummary } from '../utils/toothData';
+import { getSelectedTeethSummary } from '../utils/toothData.js';
 
 /**
  * Summary component displayed immediately below the dental anatomical chart.

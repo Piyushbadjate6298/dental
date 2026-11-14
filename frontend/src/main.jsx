@@ -17,14 +17,14 @@ import {
   Users,
   X,
 } from 'lucide-react';
-import Dashboard from './components/Dashboard';
-import DoctorsPage from './components/DoctorsPage';
-import HistoryPage from './components/HistoryPage';
-import InquiryForm from './components/InquiryForm';
-import Login from './components/Login';
-import SettingsPage from './components/SettingsPage';
-import { STORE, readData, defaultData } from './utils/dental';
-import { api } from './services/api';
+import Dashboard from './components/Dashboard.jsx';
+import DoctorsPage from './components/DoctorsPage.jsx';
+import HistoryPage from './components/HistoryPage.jsx';
+import InquiryForm from './components/InquiryForm.jsx';
+import Login from './components/Login.jsx';
+import SettingsPage from './components/SettingsPage.jsx';
+import { STORE, readData, defaultData } from './utils/dental.js';
+import { api } from './services/api.js';
 import './styles.css';
 
 function App() {

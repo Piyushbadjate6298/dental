@@ -11,13 +11,13 @@ import {
   RotateCcw,
   Sparkles,
 } from 'lucide-react';
-import ToothIllustration from './ToothIllustration';
+import ToothIllustration from './ToothIllustration.jsx';
 import {
   LEFT_INDICES,
   RIGHT_INDICES,
   teeth,
   TOOTH_NAMES,
-} from '../utils/toothData';
+} from '../utils/toothData.js';
 
 /**
  * Calculates a vertical offset for the natural dental parabolic arch curve.

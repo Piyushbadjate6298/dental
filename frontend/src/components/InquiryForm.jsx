@@ -18,10 +18,10 @@ import {
   shareInquiryOnWhatsApp,
   stages,
   today,
-} from '../utils/dental';
-import { PageHeading, SummaryRow } from './Common';
-import ToothPicker from './ToothPicker';
-import InquiryReportRenderer from './InquiryReportRenderer';
+} from '../utils/dental.js';
+import { PageHeading, SummaryRow } from './Common.jsx';
+import ToothPicker from './ToothPicker.jsx';
+import InquiryReportRenderer from './InquiryReportRenderer.jsx';
 
 export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
   const [date, setDate] = useState(initial?.date || today());

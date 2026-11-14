@@ -1,6 +1,6 @@
 import React from 'react';
 import { Check } from 'lucide-react';
-import { TOOTH_NAMES, TOOTH_PATHS } from '../utils/toothData';
+import { TOOTH_NAMES, TOOTH_PATHS } from '../utils/toothData.js';
 
 /**
  * Anatomical vector illustration for an individual tooth.
