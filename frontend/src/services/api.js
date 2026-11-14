@@ -1,25 +1,24 @@
 // API Client for Shital Dental Services
+export const RENDER_BACKEND_URL = 'https://dental-1-9jz8.onrender.com';
 
-export function getApiBaseUrl() {
-  const custom = typeof window !== 'undefined' ? localStorage.getItem('shital_custom_api_url') : null;
-  const raw = (custom || import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
-  if (!raw) return '/api';
-  return raw.endsWith('/api') ? raw : `${raw}/api`;
+// Clean up any stale custom URL that might be stored in browser localStorage
+if (typeof window !== 'undefined') {
+  try {
+    localStorage.removeItem('shital_custom_api_url');
+  } catch (e) {
+    // Ignore storage errors
+  }
 }
 
-export function setCustomApiBaseUrl(url) {
-  if (typeof window !== 'undefined') {
-    if (url && url.trim()) {
-      const clean = url.trim().replace(/\/+$/, '');
-      const formatted = clean.endsWith('/api') ? clean : `${clean}/api`;
-      localStorage.setItem('shital_custom_api_url', formatted);
-      return formatted;
-    } else {
-      localStorage.removeItem('shital_custom_api_url');
-      return getApiBaseUrl();
-    }
+let directFallbackActive = false;
+
+export function getApiBaseUrl() {
+  if (directFallbackActive) {
+    return `${RENDER_BACKEND_URL}/api`;
   }
-  return '/api';
+  const raw = (import.meta.env.VITE_API_URL || '').trim().replace(/\/+$/, '');
+  if (!raw) return '/api';
+  return raw.endsWith('/api') ? raw : `${raw}/api`;
 }
 
 class ApiClient {
@@ -43,7 +42,7 @@ class ApiClient {
   }
 
   async testConnection(targetUrl) {
-    const raw = (targetUrl || getApiBaseUrl()).trim().replace(/\/+$/, '');
+    const raw = (targetUrl || this.getBaseUrl()).trim().replace(/\/+$/, '');
     const base = raw.endsWith('/api') ? raw : `${raw}/api`;
     const res = await fetch(`${base}/health`, { method: 'GET' });
     if (!res.ok) {
@@ -53,8 +52,10 @@ class ApiClient {
   }
 
   async request(endpoint, options = {}) {
-    const base = getApiBaseUrl();
-    const url = `${base}${endpoint.startsWith('/') ? endpoint : `/${endpoint}`}`;
+    const base = this.getBaseUrl();
+    const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+    let url = `${base}${cleanEndpoint}`;
+
     const headers = {
       'Content-Type': 'application/json',
       ...options.headers,
@@ -70,9 +71,22 @@ class ApiClient {
       credentials: 'include', // Includes HttpOnly cookies
     };
 
+    let response;
+    let data = null;
+
     try {
-      const response = await fetch(url, config);
-      let data = null;
+      response = await fetch(url, config);
+
+      // If static hosting returned 405 Method Not Allowed or 404 for an API route,
+      // transparently retry directly against the deployed Render backend
+      if ((response.status === 405 || response.status === 404) && !url.startsWith(RENDER_BACKEND_URL)) {
+        console.warn(`[API] Static rewrite fallback on ${url} (${response.status}). Retrying directly with Render backend.`);
+        url = `${RENDER_BACKEND_URL}/api${cleanEndpoint}`;
+        response = await fetch(url, config);
+        if (response.ok || response.status === 401 || response.status === 400 || response.status === 403) {
+          directFallbackActive = true;
+        }
+      }
 
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
@@ -83,11 +97,6 @@ class ApiClient {
       }
 
       if (!response.ok) {
-        if (response.status === 405) {
-          throw new Error(
-            `HTTP 405 (Method Not Allowed): The request was sent to "${url}". Vercel static hosting received this POST request instead of your Render backend. Please configure your Render backend URL below.`
-          );
-        }
         const errorMessage = data?.error || data?.message || `HTTP error ${response.status}`;
         const error = new Error(errorMessage);
         error.status = response.status;
@@ -97,8 +106,31 @@ class ApiClient {
 
       return data?.data !== undefined ? data.data : data;
     } catch (err) {
+      // If relative fetch failed completely (e.g. offline or DNS), try direct Render URL if not tried yet
+      if (!url.startsWith(RENDER_BACKEND_URL) && err.name === 'TypeError' && err.message.includes('fetch')) {
+        try {
+          const directUrl = `${RENDER_BACKEND_URL}/api${cleanEndpoint}`;
+          const retryRes = await fetch(directUrl, config);
+          const ct = retryRes.headers.get('content-type');
+          const retryData = ct && ct.includes('application/json') ? await retryRes.json() : { message: await retryRes.text() };
+          if (retryRes.ok) {
+            directFallbackActive = true;
+            return retryData?.data !== undefined ? retryData.data : retryData;
+          }
+          if (retryRes.status === 401 || retryRes.status === 400 || retryRes.status === 403) {
+            directFallbackActive = true;
+            const msg = retryData?.error || retryData?.message || `HTTP error ${retryRes.status}`;
+            const e = new Error(msg);
+            e.status = retryRes.status;
+            throw e;
+          }
+        } catch (retryErr) {
+          if (retryErr.status) throw retryErr;
+        }
+      }
+
       if (err.name === 'TypeError' && err.message.includes('fetch')) {
-        throw new Error(`Could not connect to backend at "${url}". Please check your internet connection or verify your Render backend URL.`);
+        throw new Error(`Unable to connect to the dental laboratory server. Please check your internet connection.`);
       }
       throw err;
     }
