@@ -4,6 +4,7 @@ import {
   ArrowRight,
   Check,
   CheckCircle2,
+  Eye,
   FileText,
   MessageCircle,
   Save,
@@ -20,6 +21,7 @@ import {
 } from '../utils/dental';
 import { PageHeading, SummaryRow } from './Common';
 import ToothPicker from './ToothPicker';
+import InquiryReportRenderer from './InquiryReportRenderer';
 
 export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
   const [date, setDate] = useState(initial?.date || today());
@@ -31,6 +33,7 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
   const [stage, setStage] = useState(initial?.stages || []);
   const [note, setNote] = useState(initial?.note || '');
   const [busy, setBusy] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   useEffect(() => {
     if (initial) {
@@ -326,6 +329,15 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
             </button>
             <button
               type="button"
+              className="outline-btn"
+              onClick={() => setPreviewOpen(true)}
+              disabled={busy}
+              title="Preview anatomical dental report prescription image"
+            >
+              <Eye size={17} /> Preview prescription
+            </button>
+            <button
+              type="button"
               className="primary-btn submit-inquiry-btn"
               onClick={handleSubmitInquiry}
               disabled={busy}
@@ -431,6 +443,14 @@ export default function InquiryForm({ data, onSave, notify, initial, onBack }) {
           </div>
         </aside>
       </div>
+
+      <InquiryReportRenderer
+        item={payload()}
+        data={data}
+        isOpen={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        notify={notify}
+      />
     </>
   );
 }

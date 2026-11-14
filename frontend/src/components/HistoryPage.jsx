@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
+  Eye,
   Filter,
   MessageCircle,
   Pencil,
@@ -13,6 +14,7 @@ import {
   shareInquiryOnWhatsApp,
 } from '../utils/dental';
 import { EmptyState, PageHeading, StatusBadge } from './Common';
+import InquiryReportRenderer from './InquiryReportRenderer';
 
 export default function HistoryPage({
   data,
@@ -25,6 +27,8 @@ export default function HistoryPage({
   onDelete,
   notify,
 }) {
+  const [previewItem, setPreviewItem] = useState(null);
+
   const rows = data.inquiries.filter((x) => {
     const q = search.toLowerCase();
     const match = [
@@ -177,6 +181,15 @@ export default function HistoryPage({
                           <div className="row-actions">
                             <button
                               type="button"
+                              className="icon-btn"
+                              title="Preview prescription report"
+                              aria-label="Preview"
+                              onClick={() => setPreviewItem(x)}
+                            >
+                              <Eye size={16} />
+                            </button>
+                            <button
+                              type="button"
                               className="icon-btn good"
                               title="Send / Share on WhatsApp"
                               aria-label="Share on WhatsApp"
@@ -268,6 +281,13 @@ export default function HistoryPage({
                     <div className="history-card-actions">
                       <button
                         type="button"
+                        className="card-action-btn"
+                        onClick={() => setPreviewItem(x)}
+                      >
+                        <Eye size={15} /> Preview
+                      </button>
+                      <button
+                        type="button"
                         className="card-action-btn share"
                         onClick={() => resend(x)}
                       >
@@ -300,6 +320,16 @@ export default function HistoryPage({
           Showing <b>{rows.length}</b> of <b>{data.inquiries.length}</b> inquiries
         </div>
       </div>
+
+      {previewItem && (
+        <InquiryReportRenderer
+          item={previewItem}
+          data={data}
+          isOpen={!!previewItem}
+          onClose={() => setPreviewItem(null)}
+          notify={notify}
+        />
+      )}
     </>
   );
 }
