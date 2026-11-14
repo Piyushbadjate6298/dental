@@ -7,9 +7,9 @@
     "dev": "node scripts/dev.js",
     "dev:backend": "npm run dev --prefix backend",
     "dev:frontend": "npm run dev --prefix frontend",
-    "build": "npm run build --prefix frontend",
-    "build:frontend": "npm run build --prefix frontend",
-    "build:backend": "npm install --prefix backend && npm run build --prefix backend",
+    "build": "node scripts/build.js",
+    "build:frontend": "node scripts/build.js --frontend",
+    "build:backend": "node scripts/build.js --backend",
     "start": "npm start --prefix backend",
     "migrate": "npm run migrate --prefix backend",
     "setup-admin": "npm run setup-admin --prefix backend"

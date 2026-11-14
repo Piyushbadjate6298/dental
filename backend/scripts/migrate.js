@@ -13,9 +13,9 @@ async function runMigrations() {
   const connectionString = process.env.DATABASE_URL;
 
   if (!connectionString || connectionString.includes('YOUR_NEON_DATABASE_URL')) {
-    console.error('❌ Error: DATABASE_URL is not set in environment.');
-    console.log('ℹ️  Please provide your Neon connection string in .env before running migrations.');
-    process.exit(1);
+    console.warn('⚠️ Warning: DATABASE_URL is not set in environment.');
+    console.log('ℹ️ Skipping build-time database migration. Server will initialize at runtime when DATABASE_URL is present.');
+    return;
   }
 
   console.log('🔄 Connecting to Neon PostgreSQL for database migrations...');

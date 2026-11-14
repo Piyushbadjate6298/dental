@@ -1,5 +1,5 @@
 {
-  "buildCommand": "npm run build --prefix frontend",
+  "buildCommand": "node scripts/build.js --frontend",
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
