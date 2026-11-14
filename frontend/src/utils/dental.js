@@ -50,7 +50,7 @@ export const DEFAULT_INQUIRY_FORM_SETTINGS = {
 export const defaultData = {
   doctors: [],
   whatsapp: '919370045066',
-  labName: 'Shital Dental Services',
+  labName: 'Sheetal Dental Art',
   labAddress: 'Lasalgaon 422306, Tal. Niphad, Nashik',
   labPhone: '9370045066',
   nextNo: 1,
@@ -129,7 +129,7 @@ export function cleanPhone(s) {
 
 export function makeMessage(x, d) {
   const summary = getSelectedTeethSummary(x.teeth);
-  const labTitle = (d.labName || 'Shital Dental Services').toUpperCase();
+  const labTitle = (d.labName || 'Sheetal Dental Art').toUpperCase();
 
   const upperRightStr = summary.upper.right.length
     ? summary.upper.right.join(', ')
@@ -721,7 +721,7 @@ export function makeInquiryReportBlob(x, d) {
     // Lab Title & Details
     ctx.fillStyle = '#ffffff';
     ctx.font = 'bold 36px Arial, sans-serif';
-    ctx.fillText(d.labName || 'Shital Dental Services', 185, 112);
+    ctx.fillText(d.labName || 'Sheetal Dental Art', 185, 112);
 
     ctx.fillStyle = '#5eead4';
     ctx.font = 'bold 16px Arial, sans-serif';
@@ -890,7 +890,7 @@ export function makeInquiryReportBlob(x, d) {
     ctx.fillStyle = '#475569';
     ctx.font = 'bold 16px Arial, sans-serif';
     ctx.textAlign = 'center';
-    ctx.fillText('Shital Dental Services  •  Digital Laboratory Prescription Desk', centerX, footerY);
+    ctx.fillText('Sheetal Dental Art  •  Digital Laboratory Prescription Desk', centerX, footerY);
 
     ctx.font = '14px Arial, sans-serif';
     ctx.fillStyle = '#64748b';
@@ -913,7 +913,7 @@ export async function shareInquiryOnWhatsApp(item, data) {
 
   try {
     const blob = await makeInquiryReportBlob(item, data);
-    const file = new File([blob], `Shital-Inquiry-${item.number}.png`, {
+    const file = new File([blob], `Sheetal-Inquiry-${item.number}.png`, {
       type: 'image/png',
     });
     const text = makeMessage(item, data);
@@ -928,7 +928,7 @@ export async function shareInquiryOnWhatsApp(item, data) {
       return 'shared';
     }
 
-    downloadBlob(blob, `Shital-Inquiry-${item.number}.png`);
+    downloadBlob(blob, `Sheetal-Inquiry-${item.number}.png`);
     const url = `https://wa.me/${phone}?text=${encodeURIComponent(text)}`;
     if (fallbackTab && !fallbackTab.closed) {
       fallbackTab.location.href = url;

@@ -134,6 +134,11 @@ export default function DentalOdontogram({ selected = [], setSelected }) {
           </span>
         </div>
 
+        {/* Mobile Swipe Hint */}
+        <div className="odontogram-mobile-hint" aria-hidden="true">
+          <span>↔ Swipe horizontally to view full 16-tooth arch</span>
+        </div>
+
         {/* Teeth Arch / Quadrants Container */}
         <div
           className={`odontogram-teeth-container ${

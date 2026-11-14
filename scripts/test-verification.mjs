@@ -135,13 +135,13 @@ const msg = makeMessage(
     note: 'Ensure accurate margin fit on #6',
   },
   {
-    labName: 'Shital Dental Services',
+    labName: 'Sheetal Dental Art',
     labPhone: '9370045066',
     whatsapp: '919370045066',
   }
 );
 
-assert(msg.includes('SHITAL DENTAL SERVICES'), 'Message contains lab title');
+assert(msg.includes('SHEETAL DENTAL ART'), 'Message contains lab title');
 assert(msg.includes('*Inquiry Ref:* Inquiry #301') || msg.includes('*Inquiry Ref:* #301'), 'Message contains inquiry ref');
 assert(msg.includes("Patient's Right: 6, 7, 8"), 'Message contains upper right teeth');
 assert(msg.includes("Patient's Left: 2, 3"), 'Message contains upper left teeth');

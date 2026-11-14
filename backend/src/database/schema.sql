@@ -63,7 +63,7 @@ CREATE INDEX IF NOT EXISTS idx_audit_created ON audit_logs(created_at);
 INSERT INTO app_settings (id, setting_key, setting_value, updated_at)
 VALUES
   ('set-whatsapp', 'whatsapp', '919370045066', CURRENT_TIMESTAMP),
-  ('set-lab-name', 'labName', 'Shital Dental Services', CURRENT_TIMESTAMP),
+  ('set-lab-name', 'labName', 'Sheetal Dental Art', CURRENT_TIMESTAMP),
   ('set-lab-addr', 'labAddress', 'Lasalgaon 422306, Tal. Niphad, Nashik', CURRENT_TIMESTAMP),
   ('set-lab-phone', 'labPhone', '9370045066', CURRENT_TIMESTAMP)
 ON CONFLICT (setting_key) DO NOTHING;

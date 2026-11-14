@@ -232,7 +232,7 @@ function App() {
           <div className="brand-mark" style={{ margin: '0 auto 16px', width: '50px', height: '50px' }}>
             <Stethoscope size={26} />
           </div>
-          <b>SHITAL DENTAL SERVICES</b>
+          <b>SHEETAL DENTAL ART</b>
           <p style={{ fontSize: '13px', opacity: 0.8, marginTop: '8px' }}>Initializing secure workspace…</p>
         </div>
       </div>
@@ -267,8 +267,8 @@ function App() {
             <Stethoscope size={22} />
           </div>
           <div>
-            <b>SHITAL</b>
-            <span>DENTAL SERVICES</span>
+            <b>SHEETAL</b>
+            <span>DENTAL ART</span>
           </div>
           <button
             type="button"
@@ -420,7 +420,7 @@ function App() {
         </div>
 
         <footer>
-          © {new Date().getFullYear()} Shital Dental Services <span>•</span>{' '}
+          © {new Date().getFullYear()} Sheetal Dental Art <span>•</span>{' '}
           Connected to Neon PostgreSQL <span>•</span> Digital Lab Desk
         </footer>
       </main>

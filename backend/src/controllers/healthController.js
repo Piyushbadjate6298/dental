@@ -6,7 +6,7 @@ export async function getHealth(req, res) {
 
   return sendSuccess(res, {
     status: 'healthy',
-    application: 'Shital Dental Services API',
+    application: 'Sheetal Dental Art API',
     version: '2.0.0',
     environment: process.env.NODE_ENV || 'development',
     database: dbStatus,

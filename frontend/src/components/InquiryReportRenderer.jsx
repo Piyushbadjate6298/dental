@@ -66,7 +66,7 @@ export default function InquiryReportRenderer({
 
   const handleDownload = () => {
     if (!blob) return;
-    downloadBlob(blob, `Shital-Inquiry-${item.number}.png`);
+    downloadBlob(blob, `Sheetal-Inquiry-${item.number}.png`);
     notify?.('Inquiry report image downloaded');
   };
 

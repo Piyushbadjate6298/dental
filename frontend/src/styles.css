@@ -38,16 +38,19 @@
 }
 
 html,
-body {
+body,
+#root {
   margin: 0;
   padding: 0;
-  min-width: 320px;
-  overflow-x: clip;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--ink);
   font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
+  -webkit-tap-highlight-color: transparent;
 }
 
 button,
@@ -123,7 +126,9 @@ textarea:focus-visible {
 /* App Shell */
 .app-shell {
   min-height: 100vh;
-  overflow-x: clip;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 .sidebar {
@@ -1507,6 +1512,19 @@ footer span {
   letter-spacing: 1.2px;
 }
 
+.odontogram-mobile-hint {
+  display: none;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--brand);
+  background: var(--brand-tint);
+  border: 1px dashed rgba(13, 148, 136, 0.35);
+  border-radius: 8px;
+  padding: 5px 10px;
+  text-align: center;
+  margin: 4px 0 2px 0;
+}
+
 .odontogram-teeth-container {
   display: flex;
   align-items: center;
@@ -2786,6 +2804,9 @@ td small {
   border-radius: 12px;
   border: 1px solid var(--border, #e2e8f0);
   width: fit-content;
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .settings-nav-tab {
@@ -2945,7 +2966,8 @@ td small {
   font-size: 13px;
   border: 1px solid var(--border, #cbd5e1);
   border-radius: 8px;
-  min-width: 260px;
+  min-width: 0;
+  flex: 1;
 }
 
 .ifs-item-list {
@@ -3786,6 +3808,13 @@ td small {
 }
 
 @media (max-width: 768px) {
+  /* Prevent iOS Safari 100% zoom-in on input focus */
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+
   .desktop-history {
     display: none;
   }
@@ -3793,6 +3822,12 @@ td small {
   .mobile-history-cards {
     display: grid;
     gap: 12px;
+  }
+
+  .history-card-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
   }
 
   .history-tools {
@@ -3818,12 +3853,154 @@ td small {
   .choice-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .odontogram-mobile-hint {
+    display: block;
+  }
+
+  /* Modals */
+  .modal-card {
+    width: calc(100vw - 24px);
+    max-width: 100%;
+    max-height: 92vh;
+    margin: 12px;
+  }
+
+  .report-preview-modal {
+    width: calc(100vw - 20px);
+    max-width: 100%;
+    height: 92vh;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 8px;
+    padding: 12px 16px;
+  }
+
+  .modal-footer button,
+  .modal-footer .primary-btn,
+  .modal-footer .outline-btn,
+  .modal-footer .whatsapp-share-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  /* Settings & Inquiry Form Settings */
+  .settings-nav-tabs {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding-bottom: 6px;
+  }
+
+  .settings-nav-tabs button {
+    flex-shrink: 0;
+  }
+
+  .ifs-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .ifs-actions {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .ifs-actions button {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  .ifs-add-bar {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .ifs-add-bar input {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .ifs-add-bar button {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
+
+  .ifs-tabs {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    width: 100%;
+    padding-bottom: 6px;
+  }
+
+  .ifs-tab {
+    flex-shrink: 0;
+    font-size: 12px;
+    padding: 7px 12px;
+  }
+
+  .ifs-item-row {
+    flex-wrap: wrap;
+    padding: 10px;
+    gap: 8px;
+  }
+
+  .ifs-order-controls {
+    flex-shrink: 0;
+  }
+
+  .ifs-item-content {
+    min-width: 0;
+    flex: 1 1 auto;
+  }
+
+  .ifs-row-actions {
+    margin-left: auto;
+    gap: 4px;
+  }
+
+  .icon-action-btn {
+    min-height: 38px;
+    min-width: 38px;
+    display: grid;
+    place-items: center;
+  }
+
+  .ifs-custom-field-modal {
+    padding: 14px 12px;
+  }
+
+  .ifs-form-modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .ifs-form-modal-actions button {
+    width: 100%;
+    justify-content: center;
+    min-height: 42px;
+  }
 }
 
 @media (max-width: 560px) {
   .topbar {
-    height: 58px;
-    padding: 0 12px;
+    height: 56px;
+    padding: 0 10px;
+    gap: 8px;
   }
 
   .crumb-root,
@@ -3831,99 +4008,195 @@ td small {
     display: none;
   }
 
+  .crumb b {
+    max-width: 130px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: inline-block;
+    vertical-align: middle;
+  }
+
   .today-label span {
     display: none;
   }
 
   .today-label {
-    padding: 7px 9px;
+    padding: 6px 8px;
+    font-size: 11px;
   }
 
   .content {
-    padding: 18px 12px 28px;
+    padding: 14px 10px 28px;
   }
 
   footer {
-    padding: 14px 12px;
+    padding: 12px 10px;
   }
 
   .page-heading {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    margin-bottom: 18px;
+    gap: 10px;
+    margin-bottom: 16px;
   }
 
   .page-heading h1 {
-    font-size: 24px;
+    font-size: 22px;
   }
 
   .page-heading-action .primary-btn,
   .page-heading-action .outline-btn {
     width: 100%;
+    justify-content: center;
+    min-height: 44px;
   }
 
   .welcome-strip {
     flex-wrap: wrap;
-    padding: 14px;
+    padding: 14px 12px;
   }
 
   .welcome-cta {
     width: 100%;
     justify-content: center;
     margin-left: 0;
+    min-height: 44px;
   }
 
-  .panel {
-    padding: 16px 14px;
-  }
-
+  .panel,
   .form-panel {
-    padding: 16px 14px;
+    padding: 14px 12px;
+    border-radius: 12px;
   }
 
   .field-grid {
     grid-template-columns: 1fr;
-    gap: 14px;
+    gap: 12px;
+  }
+
+  .field label {
+    font-size: 12px;
+    margin-bottom: 5px;
   }
 
   .tooth-picker {
-    padding: 12px;
+    padding: 10px;
   }
 
-  /* Odontogram & Summary Mobile Optimizations */
+  /* Odontogram Mobile Optimizations */
   .dental-odontogram-card {
-    padding: 12px;
+    padding: 10px;
+    max-width: 100%;
+    overflow: hidden;
   }
 
   .odontogram-top-bar {
     flex-direction: column;
     align-items: stretch;
-    gap: 10px;
+    gap: 8px;
+  }
+
+  .odontogram-title-area {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .odontogram-title {
+    font-size: 14px;
+  }
+
+  .odontogram-caption {
+    font-size: 11px;
   }
 
   .odontogram-actions {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 8px;
+  }
+
+  .view-mode-pill {
+    width: 100%;
+    display: flex;
+  }
+
+  .view-pill-btn {
+    flex: 1;
+    justify-content: center;
+    min-height: 38px;
+    font-size: 12px;
+  }
+
+  .odontogram-clear-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 40px;
+  }
+
+  .odontogram-jaw-section {
+    padding: 10px 8px;
+  }
+
+  .odontogram-jaw-bar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .jaw-controls-group {
+    width: 100%;
     justify-content: space-between;
+  }
+
+  .jaw-quick-action {
+    min-height: 32px;
+    padding: 4px 10px;
+  }
+
+  .odontogram-side-indicators {
+    font-size: 10px;
+    padding: 0 4px;
   }
 
   .odontogram-teeth-container {
     justify-content: flex-start;
-    padding: 12px 6px;
+    padding: 10px 4px;
+    max-width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .teeth-quadrant-group {
+    flex: 0 0 auto;
+    min-width: 0;
   }
 
   .quadrant-teeth-flex {
-    grid-template-columns: repeat(8, 40px);
-    gap: 5px;
+    display: grid;
+    grid-template-columns: repeat(8, 36px);
+    gap: 4px;
   }
 
   .tooth-illustration-card {
-    max-width: 40px;
-    min-height: 60px;
-    padding: 4px 2px;
+    max-width: 36px;
+    min-height: 56px;
+    padding: 4px 1px;
   }
 
   .tooth-num-text {
-    font-size: 12px;
+    font-size: 11px;
+  }
+
+  .odontogram-midline-pillar {
+    width: 28px;
+    flex-shrink: 0;
+  }
+
+  .pillar-tag {
+    font-size: 8px;
+    padding: 1px 4px;
   }
 
   .summary-grid {
@@ -3937,20 +4210,20 @@ td small {
   }
 
   .jaw-card {
-    padding: 12px;
+    padding: 10px;
   }
 
   .teeth-grid {
-    gap: 6px;
+    gap: 5px;
   }
 
   .tooth-btn {
-    min-height: 50px;
-    border-radius: 10px;
+    min-height: 48px;
+    border-radius: 8px;
   }
 
   .tooth-num {
-    font-size: 16px;
+    font-size: 15px;
   }
 
   .choice-grid {
@@ -3959,9 +4232,22 @@ td small {
   }
 
   .choice {
-    padding: 10px;
+    padding: 10px 8px;
     font-size: 13px;
     gap: 8px;
+    min-height: 46px;
+  }
+
+  .shade-chips,
+  .stage-chips {
+    gap: 6px;
+  }
+
+  .shade-chip,
+  .stage-chip {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 40px;
   }
 
   .form-actions {
@@ -3970,33 +4256,159 @@ td small {
     gap: 10px;
   }
 
+  .form-actions .primary-btn,
+  .form-actions .outline-btn,
+  .submit-inquiry-btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 48px;
+  }
+
   .add-doctor-row {
     flex-direction: column;
+    gap: 8px;
   }
 
   .add-doctor-row .primary-btn {
     width: 100%;
+    justify-content: center;
+    min-height: 44px;
+  }
+
+  .doctor-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .doctor-meta {
+    width: 100%;
+  }
+
+  .doctor-actions {
+    width: 100%;
+    justify-content: flex-end;
+    gap: 8px;
+  }
+
+  .recent-row {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+  }
+
+  .recent-info {
+    width: 100%;
+  }
+
+  .recent-status {
+    align-self: flex-start;
+  }
+
+  .stat-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+
+  .stat-card {
+    padding: 12px 10px;
+  }
+
+  .stat-val {
+    font-size: 24px;
+  }
+
+  .history-card {
+    padding: 12px 10px;
+  }
+
+  .history-card-actions {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .card-action-btn {
+    min-height: 42px;
+    font-size: 12px;
   }
 
   .login-card {
-    padding: 24px 18px;
+    padding: 22px 16px;
+    border-radius: 14px;
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .login-card h2 {
+    font-size: 24px;
+  }
+
+  .input-wrap {
+    min-height: 48px;
+  }
+
+  .pass-toggle {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .login-card button[type="submit"] {
+    min-height: 48px;
+    font-size: 15px;
   }
 
   .toast {
-    left: 16px;
-    right: 16px;
-    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    padding: 10px 14px;
+    font-size: 13px;
     justify-content: center;
   }
 }
 
 @media (max-width: 360px) {
+  .topbar {
+    padding: 0 8px;
+  }
+
+  .crumb b {
+    max-width: 95px;
+  }
+
+  .content {
+    padding: 12px 8px 22px;
+  }
+
+  .panel,
+  .form-panel {
+    padding: 12px 8px;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr;
+  }
+
   .choice-grid {
     grid-template-columns: 1fr;
   }
 
   .history-card-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
+  }
+
+  .quadrant-teeth-flex {
+    grid-template-columns: repeat(8, 33px);
+    gap: 3px;
+  }
+
+  .tooth-illustration-card {
+    max-width: 33px;
+    min-height: 52px;
+  }
+
+  .login-card {
+    padding: 18px 10px;
   }
 }
 

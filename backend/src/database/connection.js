@@ -56,7 +56,7 @@ class InMemoryDb {
     this.inquiries = [];
     this.app_settings = [
       { id: 'set-whatsapp', setting_key: 'whatsapp', setting_value: '919370045066', updated_at: new Date() },
-      { id: 'set-lab-name', setting_key: 'labName', setting_value: 'Shital Dental Services', updated_at: new Date() },
+      { id: 'set-lab-name', setting_key: 'labName', setting_value: 'Sheetal Dental Art', updated_at: new Date() },
       { id: 'set-lab-addr', setting_key: 'labAddress', setting_value: 'Lasalgaon 422306, Tal. Niphad, Nashik', updated_at: new Date() },
       { id: 'set-lab-phone', setting_key: 'labPhone', setting_value: '9370045066', updated_at: new Date() },
     ];

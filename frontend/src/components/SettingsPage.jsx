@@ -56,7 +56,7 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
 
     const payload = {
       whatsapp: normalized,
-      labName: lab.trim() || 'Shital Dental Services',
+      labName: lab.trim() || 'Sheetal Dental Art',
       labAddress: address,
       labPhone,
     };
@@ -155,7 +155,7 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
     const blob = new Blob([JSON.stringify(data, null, 2)], {
       type: 'application/json',
     });
-    downloadBlob(blob, 'shital-dental-backup.json');
+    downloadBlob(blob, 'sheetal-dental-backup.json');
     notify('Backup downloaded');
   };
 
@@ -250,7 +250,7 @@ export default function SettingsPage({ data, setData, notify, onRefresh }) {
               id="settings-lab-name"
               value={lab}
               onChange={(e) => setLab(e.target.value)}
-              placeholder="Shital Dental Services"
+              placeholder="Sheetal Dental Art"
             />
           </div>
 

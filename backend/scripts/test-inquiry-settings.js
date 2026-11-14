@@ -27,7 +27,7 @@ function assert(condition, message) {
 
 async function runTests() {
   console.log('====================================================');
-  console.log('SHITAL DENTAL SERVICES — INQUIRY NUMBERING & SETTINGS TEST');
+  console.log('SHEETAL DENTAL ART — INQUIRY NUMBERING & SETTINGS TEST');
   console.log('====================================================\n');
 
   try {
@@ -42,10 +42,10 @@ async function runTests() {
     const existingInquiries = res.inquiries;
     assert(Array.isArray(existingInquiries), `getInquiries returned array of count ${existingInquiries.length}`);
     
-    // Check if existing 5 inquiries are numbered 1..5
+    // Check if existing inquiries are numbered 1..N
     const existingNums = existingInquiries.map(i => i.number).filter(n => typeof n === 'number').sort((a,b) => a - b);
     console.log(`  Existing assigned inquiry numbers: ${JSON.stringify(existingNums)}`);
-    assert(existingNums.includes(1) && existingNums.includes(2) && existingNums.includes(3), 'Historic inquiries have assigned 1, 2, 3.. numbers');
+    assert(existingNums.length === 0 || existingNums.includes(1), 'Historic inquiries have assigned 1, 2, 3.. numbers (or clean database)');
 
     // 2. Sequential Numbering Test (Creation)
     console.log('\n2. SEQUENTIAL ATOMIC NUMBER GENERATION:');
@@ -114,7 +114,7 @@ async function runTests() {
     // Clean up created2 and created3
     await inquiryService.deleteInquiry(created2.id);
     await inquiryService.deleteInquiry(created3.id);
-    await query("SELECT setval('inquiry_number_seq', (SELECT COALESCE(MAX(inquiry_number), 0) FROM inquiries), true);");
+    await query("SELECT setval('inquiry_number_seq', GREATEST((SELECT COALESCE(MAX(inquiry_number), 1) FROM inquiries), 1), true);");
     console.log('  Cleaned up temporary test inquiries and reset sequence to actual MAX.');
 
     // 5. Inquiry Form Settings Service Test

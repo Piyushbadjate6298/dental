@@ -37,7 +37,7 @@ export const DEFAULT_INQUIRY_FORM_SETTINGS = {
 
 const DEFAULT_SETTINGS = {
   whatsapp: '919370045066',
-  labName: 'Shital Dental Services',
+  labName: 'Sheetal Dental Art',
   labAddress: 'Lasalgaon 422306, Tal. Niphad, Nashik',
   labPhone: '9370045066',
   inquiryFormSettings: DEFAULT_INQUIRY_FORM_SETTINGS,

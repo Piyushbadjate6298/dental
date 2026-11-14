@@ -65,7 +65,7 @@ export default function Login({ onLogin }) {
             </span>
           </div>
         </div>
-        <div className="art-footer">SHITAL DENTAL SERVICES · LASALGAON</div>
+        <div className="art-footer">SHEETAL DENTAL ART · LASALGAON</div>
       </div>
 
       <div className="login-panel">
@@ -75,8 +75,8 @@ export default function Login({ onLogin }) {
               <Stethoscope size={22} />
             </div>
             <div>
-              <b>SHITAL</b>
-              <span>DENTAL SERVICES</span>
+              <b>SHEETAL</b>
+              <span>DENTAL ART</span>
             </div>
           </div>
 
